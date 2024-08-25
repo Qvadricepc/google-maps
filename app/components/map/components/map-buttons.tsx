@@ -17,7 +17,7 @@ const MapButtons = () => {
   }
 
   return (
-    <div className="absolute bottom-10 left-1/4 transform -translate-x-1/2 z-10 space-x-4 flex justify-center">
+    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 space-x-4 flex justify-center">
       <button onClick={handlePolygonClick} className={buttonClass}>
         <div className="flex space-x-1 justify-center">
           <DrawIcon />

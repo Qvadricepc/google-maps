@@ -1,14 +1,14 @@
 'use client'
-import MapComponent from '@/app/components/map-components/map-component'
+import MapComponent from '@/app/components/map'
 import { MapProvider } from '@/app/providers/map-context'
+import Table from '@/app/components/table'
 
 export default function Home() {
   return (
     <MapProvider>
-      <div>
-        <div>
-          <MapComponent />
-        </div>
+      <div className={'flex'}>
+        <MapComponent />
+        <Table />
       </div>
     </MapProvider>
   )

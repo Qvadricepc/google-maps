@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import {
   GoogleMap,
   useJsApiLoader,
@@ -8,7 +8,8 @@ import {
 } from '@react-google-maps/api'
 import { Library } from '@googlemaps/js-api-loader'
 import { useMapContext } from '@/app/providers/map-context'
-import MapButtons from '@/app/components/map-components/map-buttons'
+import MapButtons from '@/app/components/map/components/map-buttons'
+import { v4 as uuidv4 } from 'uuid'
 
 const containerStyle = {
   width: '50vw',
@@ -24,14 +25,16 @@ const usaBounds = {
 
 const libraries: Library[] = ['drawing']
 
-function MyComponent() {
+function MyMapComponent() {
   const {
     markers,
     polygons,
+    mapKey,
     drawingMode,
     setDrawingMode,
     setMarkers,
     setPolygons,
+    polygonRefs,
   } = useMapContext()
 
   const { isLoaded } = useJsApiLoader({
@@ -55,7 +58,12 @@ function MyComponent() {
   const handleMarkerComplete = (marker: google.maps.Marker) => {
     const position = marker.getPosition()
     if (position) {
-      setMarkers((prevMarkers) => [...prevMarkers, position])
+      const newMarker = {
+        id: uuidv4(),
+        position,
+        name: `Marker ${markers.length + 1}`,
+      }
+      setMarkers((prevMarkers) => [...prevMarkers, newMarker])
     }
     marker.setMap(null)
     setDrawingMode(null)
@@ -63,10 +71,71 @@ function MyComponent() {
 
   const handlePolygonComplete = (polygon: google.maps.Polygon) => {
     const path = polygon.getPath().getArray()
-    setPolygons((prevPolygons) => [...prevPolygons, path])
+    const newPolygon = {
+      id: uuidv4(),
+      path,
+      name: `Polygon ${polygons.length + 1}`,
+    }
+    setPolygons((prevPolygons) => [...prevPolygons, newPolygon])
     polygon.setMap(null)
     setDrawingMode(null)
   }
+
+  const handleEditMarker = (id: string, newPosition: google.maps.LatLng) => {
+    setMarkers((prevMarkers) =>
+      prevMarkers.map((marker) =>
+        marker.id === id ? { ...marker, position: newPosition } : marker
+      )
+    )
+  }
+
+  const handleEditPolygon = (id: string) => {
+    const polygon = polygonRefs.current[id]
+    if (polygon) {
+      const newPath = polygon.getPath().getArray()
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((poly) =>
+          poly.id === id ? { ...poly, path: newPath } : poly
+        )
+      )
+    }
+  }
+
+  const handleEditName = (
+    id: string,
+    newName: string,
+    type: 'marker' | 'polygon'
+  ) => {
+    if (type === 'marker') {
+      setMarkers((prevMarkers) =>
+        prevMarkers.map((marker) =>
+          marker.id === id ? { ...marker, name: newName } : marker
+        )
+      )
+    } else if (type === 'polygon') {
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((polygon) =>
+          polygon.id === id ? { ...polygon, name: newName } : polygon
+        )
+      )
+    }
+  }
+
+  const handleMarkerDoubleClick = (markerId: string) => {
+    const newName = prompt('Enter new name for marker:')
+    if (newName) {
+      handleEditName(markerId, newName, 'marker')
+    }
+  }
+
+  const handlePolygonDoubleClick = (polygonId: string) => {
+    const newName = prompt('Enter new name for polygon:')
+    if (newName) {
+      handleEditName(polygonId, newName, 'polygon')
+    }
+  }
+
+  console.log(polygonRefs.current)
 
   return isLoaded ? (
     <div className="relative">
@@ -74,6 +143,7 @@ function MyComponent() {
 
       {/* Google Map */}
       <GoogleMap
+        key={mapKey}
         mapContainerStyle={containerStyle}
         onLoad={onLoad}
         center={{ lat: 37.0902, lng: -95.7129 }} // Center of the USA
@@ -105,15 +175,23 @@ function MyComponent() {
         />
 
         {/* Render stored markers */}
-        {markers.map((position, index) => (
-          <Marker key={index} position={position} />
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            position={marker.position}
+            draggable={true}
+            onDragEnd={(e) =>
+              handleEditMarker(marker.id, e.latLng as google.maps.LatLng)
+            }
+            onDblClick={() => handleMarkerDoubleClick(marker.id)}
+          />
         ))}
 
         {/* Render stored polygons */}
-        {polygons.map((path, index) => (
+        {polygons.map((polygon) => (
           <Polygon
-            key={index}
-            paths={path}
+            key={polygon.id}
+            paths={polygon.path}
             options={{
               fillColor: '#2196F3',
               strokeColor: '#2196F3',
@@ -123,6 +201,11 @@ function MyComponent() {
               editable: true,
               draggable: true,
             }}
+            onLoad={(polygonInstance) =>
+              (polygonRefs.current[polygon.id] = polygonInstance)
+            }
+            onMouseUp={() => handleEditPolygon(polygon.id)}
+            onDblClick={() => handlePolygonDoubleClick(polygon.id)}
           />
         ))}
       </GoogleMap>
@@ -132,4 +215,4 @@ function MyComponent() {
   )
 }
 
-export default React.memo(MyComponent)
+export default React.memo(MyMapComponent)
