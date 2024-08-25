@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react'
+import React, { useCallback, useRef } from 'react'
 import {
   GoogleMap,
   useJsApiLoader,
@@ -98,26 +98,6 @@ function MyMapComponent() {
       setPolygons((prevPolygons) =>
         prevPolygons.map((poly) =>
           poly.id === id ? { ...poly, path: newPath } : poly
-        )
-      )
-    }
-  }
-
-  const handleEditName = (
-    id: string,
-    newName: string,
-    type: 'marker' | 'polygon'
-  ) => {
-    if (type === 'marker') {
-      setMarkers((prevMarkers) =>
-        prevMarkers.map((marker) =>
-          marker.id === id ? { ...marker, name: newName } : marker
-        )
-      )
-    } else if (type === 'polygon') {
-      setPolygons((prevPolygons) =>
-        prevPolygons.map((polygon) =>
-          polygon.id === id ? { ...polygon, name: newName } : polygon
         )
       )
     }

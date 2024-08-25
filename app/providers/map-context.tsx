@@ -29,6 +29,11 @@ interface MapContextProps {
   }>
   handleDeleteMarker: (id: string) => void
   handleDeletePolygon: (id: string) => void
+  handleEditName: (
+    id: string,
+    newName: string,
+    type: 'marker' | 'polygon'
+  ) => void
 }
 
 const MapContext = createContext<MapContextProps | undefined>(undefined)
@@ -72,6 +77,26 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
     setMapKey((prevMapKeys) => prevMapKeys + 1)
   }
 
+  const handleEditName = (
+    id: string,
+    newName: string,
+    type: 'marker' | 'polygon'
+  ) => {
+    if (type === 'marker') {
+      setMarkers((prevMarkers) =>
+        prevMarkers.map((marker) =>
+          marker.id === id ? { ...marker, name: newName } : marker
+        )
+      )
+    } else if (type === 'polygon') {
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((polygon) =>
+          polygon.id === id ? { ...polygon, name: newName } : polygon
+        )
+      )
+    }
+  }
+
   return (
     <MapContext.Provider
       value={{
@@ -86,6 +111,7 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
         polygonRefs,
         handleDeleteMarker,
         handleDeletePolygon,
+        handleEditName,
       }}
     >
       {children}

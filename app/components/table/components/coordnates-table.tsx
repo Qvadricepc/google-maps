@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useMapContext } from '@/app/providers/map-context'
 import { Tabs } from '@/app/const'
 
@@ -24,7 +24,7 @@ const CoordinatesTable = ({ activeTab }: { activeTab: string }) => {
         </thead>
         <tbody>
           {activeTab === Tabs.Markers &&
-            markers.map((marker, index) => (
+            markers.map((marker) => (
               <tr
                 key={marker.id}
                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
