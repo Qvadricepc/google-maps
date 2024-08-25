@@ -27,6 +27,8 @@ interface MapContextProps {
   polygonRefs: React.MutableRefObject<{
     [key: string]: google.maps.Polygon | null
   }>
+  handleDeleteMarker: (id: string) => void
+  handleDeletePolygon: (id: string) => void
 }
 
 const MapContext = createContext<MapContextProps | undefined>(undefined)
@@ -49,6 +51,27 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
     useState<google.maps.drawing.OverlayType | null>(null)
   const polygonRefs = useRef<{ [key: string]: google.maps.Polygon | null }>({})
 
+  const handleDeleteMarker = (id: string) => {
+    setMarkers((prevMarkers) =>
+      prevMarkers.filter((marker) => marker.id !== id)
+    )
+  }
+
+  const handleDeletePolygon = (id: string) => {
+    // First, remove the polygon from the map
+    const polygon = polygonRefs.current[id]
+    if (polygon) {
+      polygon.setMap(null) // Remove the polygon from the map
+      delete polygonRefs.current[id] // Remove the reference
+    }
+
+    // Update the state to remove the polygon
+    setPolygons((prevPolygons) =>
+      prevPolygons.filter((polygon) => polygon.id !== id)
+    )
+    setMapKey((prevMapKeys) => prevMapKeys + 1)
+  }
+
   return (
     <MapContext.Provider
       value={{
@@ -61,6 +84,8 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
         setMapKey,
         setDrawingMode,
         polygonRefs,
+        handleDeleteMarker,
+        handleDeletePolygon,
       }}
     >
       {children}

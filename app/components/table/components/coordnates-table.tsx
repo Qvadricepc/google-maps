@@ -3,29 +3,8 @@ import { useMapContext } from '@/app/providers/map-context'
 import { Tabs } from '@/app/const'
 
 const CoordinatesTable = ({ activeTab }: { activeTab: string }) => {
-  const { markers, polygons, setMarkers, setPolygons, polygonRefs, setMapKey } =
+  const { markers, polygons, handleDeletePolygon, handleDeleteMarker } =
     useMapContext()
-
-  const handleDeleteMarker = (id: string) => {
-    setMarkers((prevMarkers) =>
-      prevMarkers.filter((marker) => marker.id !== id)
-    )
-  }
-
-  const handleDeletePolygon = (id: string) => {
-    // First, remove the polygon from the map
-    const polygon = polygonRefs.current[id]
-    if (polygon) {
-      polygon.setMap(null) // Remove the polygon from the map
-      delete polygonRefs.current[id] // Remove the reference
-    }
-
-    // Update the state to remove the polygon
-    setPolygons((prevPolygons) =>
-      prevPolygons.filter((polygon) => polygon.id !== id)
-    )
-    setMapKey((prevMapKeys) => prevMapKeys + 1)
-  }
 
   return (
     <div className="relative overflow-x-auto">

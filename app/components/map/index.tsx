@@ -35,6 +35,8 @@ function MyMapComponent() {
     setMarkers,
     setPolygons,
     polygonRefs,
+    handleDeleteMarker,
+    handleDeletePolygon,
   } = useMapContext()
 
   const { isLoaded } = useJsApiLoader({
@@ -121,22 +123,6 @@ function MyMapComponent() {
     }
   }
 
-  const handleMarkerDoubleClick = (markerId: string) => {
-    const newName = prompt('Enter new name for marker:')
-    if (newName) {
-      handleEditName(markerId, newName, 'marker')
-    }
-  }
-
-  const handlePolygonDoubleClick = (polygonId: string) => {
-    const newName = prompt('Enter new name for polygon:')
-    if (newName) {
-      handleEditName(polygonId, newName, 'polygon')
-    }
-  }
-
-  console.log(polygonRefs.current)
-
   return isLoaded ? (
     <div className="relative">
       <MapButtons />
@@ -183,7 +169,7 @@ function MyMapComponent() {
             onDragEnd={(e) =>
               handleEditMarker(marker.id, e.latLng as google.maps.LatLng)
             }
-            onDblClick={() => handleMarkerDoubleClick(marker.id)}
+            onDblClick={() => handleDeleteMarker(marker.id)}
           />
         ))}
 
@@ -205,7 +191,7 @@ function MyMapComponent() {
               (polygonRefs.current[polygon.id] = polygonInstance)
             }
             onMouseUp={() => handleEditPolygon(polygon.id)}
-            onDblClick={() => handlePolygonDoubleClick(polygon.id)}
+            onDblClick={() => handleDeletePolygon(polygon.id)}
           />
         ))}
       </GoogleMap>
