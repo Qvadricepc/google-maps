@@ -34,6 +34,8 @@ interface MapContextProps {
     newName: string,
     type: 'marker' | 'polygon'
   ) => void
+  handleEditMarker: (id: string, newPosition: google.maps.LatLng) => void
+  handleEditPolygon: (id: string) => void
 }
 
 const MapContext = createContext<MapContextProps | undefined>(undefined)
@@ -97,6 +99,26 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  const handleEditMarker = (id: string, newPosition: google.maps.LatLng) => {
+    setMarkers((prevMarkers) =>
+      prevMarkers.map((marker) =>
+        marker.id === id ? { ...marker, position: newPosition } : marker
+      )
+    )
+  }
+
+  const handleEditPolygon = (id: string) => {
+    const polygon = polygonRefs.current[id]
+    if (polygon) {
+      const newPath = polygon.getPath().getArray()
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((poly) =>
+          poly.id === id ? { ...poly, path: newPath } : poly
+        )
+      )
+    }
+  }
+
   return (
     <MapContext.Provider
       value={{
@@ -112,6 +134,8 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
         handleDeleteMarker,
         handleDeletePolygon,
         handleEditName,
+        handleEditMarker,
+        handleEditPolygon,
       }}
     >
       {children}

@@ -10,6 +10,7 @@ import { Library } from '@googlemaps/js-api-loader'
 import { useMapContext } from '@/app/providers/map-context'
 import MapButtons from '@/app/components/map/components/map-buttons'
 import { v4 as uuidv4 } from 'uuid'
+import Spinner from './components/spinner'
 
 const containerStyle = {
   width: '50vw',
@@ -177,7 +178,7 @@ function MyMapComponent() {
       </GoogleMap>
     </div>
   ) : (
-    <></>
+    <Spinner />
   )
 }
 
